@@ -1,26 +1,181 @@
-# Student Career Guidance Platform
+# Career Match Studio
 
-## Features
-- Feature 1: Description of feature 1
-- Feature 2: Description of feature 2
+AI-powered career guidance for Computer Science, Engineering, and Medical fields.
+Uses a cosine-similarity recommendation engine to score 19 careers against a
+student's subjects, interests, and skills — with live-updating results.
 
-## Technologies
-- Technology 1
-- Technology 2
+---
 
-## Installation
-1. Step 1: Description of step 1
-2. Step 2: Description of step 2
+## Project Structure
 
-## Contributing
-1. Fork the repository
-2. Create a new feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
+```
+career_match_studio/
+├── backend/                        Django REST API
+│   ├── manage.py
+│   ├── requirements.txt
+│   ├── career_backend/             Django project settings
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   ├── asgi.py
+│   │   └── wsgi.py
+│   └── recommender/                Core Django app
+│       ├── career_engine.py        Recommendation engine (pure Python)
+│       ├── models.py               StudentProfile + CareerRecommendation DB models
+│       ├── serializers.py          DRF serializer with validation
+│       ├── views.py                POST /api/recommend/ endpoint
+│       ├── urls.py
+│       ├── admin.py
+│       └── tests.py                7 API tests
+│
+├── frontend/                       React app
+│   ├── package.json
+│   ├── public/
+│   │   └── index.html
+│   └── src/             
+│       ├── App.js                  Main app component
+│       ├── App.css                 All styles
+│       ├── App.test.js             Component tests
+│       ├── index.js
+│       └── index.css
+│
+├── misc/
+│   ├── career_recommender.py       Standalone demo script
+│   └── run_kaggle_skill.py         Kaggle dataset test script
+│
+├── data/                           (add your CSV here for Kaggle testing)
+│   └── skill_and_career_recommendation_dataset.csv
+│
+├── .gitignore
+└── README.md
+```
 
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+---
 
-## Support
-For support, please reach out to: [your-email@example.com] or open an issue in the repository.
+## Quick Start
+
+### Backend
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+API is now live at `http://127.0.0.1:8000/api/recommend/`
+
+#### Run backend tests
+```bash
+python manage.py test recommender
+```
+
+#### Create admin user (optional — to view saved profiles)
+```bash
+python manage.py createsuperuser
+# Then visit http://127.0.0.1:8000/admin/
+```
+
+---
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+App opens at `http://localhost:3000`
+
+> The `"proxy": "http://127.0.0.1:8000"` in `package.json` forwards API calls
+> to Django automatically in development.
+
+The frontend engine (`engine.js`) runs **entirely in the browser** — the app
+works standalone without Django. The Django backend is only needed to persist
+recommendation history to the database.
+
+---
+
+## How the Engine Works
+
+### Interest dimensions (8 specific keys)
+```
+Coding / Software  ·  AI & Machine Learning  ·  Data & Analytics
+Physics & Maths    ·  Biology                ·  Chemistry
+Electronics & HW   ·  Research
+```
+
+### Scoring formula
+```
+score = 0.45 × subject_score + 0.35 × interest_score + 0.20 × skill_score + boost
+```
+
+| Component      | Method                  | Why                                              |
+|----------------|-------------------------|--------------------------------------------------|
+| subject_score  | Exact match / partial   | Favourite subjects are the strongest discriminator|
+| interest_score | **Cosine similarity**   | Penalises mismatched interests naturally          |
+| skill_score    | Weighted average        | Skills are self-rated and less reliable           |
+| boost          | Small additive (+0–0.05)| Prevents score collapse; preserves spread         |
+
+### Why cosine similarity?
+A simple weighted average only rewards matching interests. Cosine similarity
+compares the student's **full interest vector** against each career's profile.
+If you have high interest in dims the career doesn't value, your vector magnitude
+grows without increasing the dot product — resulting in a lower similarity score.
+This is how `AI Engineer` properly outscores `Web Developer` for an AI-focused
+student, even though both require "Coding / Software".
+
+---
+
+## API Reference
+
+### POST /api/recommend/
+
+**Request body**
+```json
+{
+  "favoriteSubjects": ["Computer Science", "Mathematics"],
+  "interestAreas": {
+    "Coding / Software": 5,
+    "AI & Machine Learning": 4,
+    "Data & Analytics": 3,
+    "Physics & Maths": 3,
+    "Biology": 1,
+    "Chemistry": 1,
+    "Electronics & HW": 2,
+    "Research": 2
+  },
+  "skills": {
+    "Programming": 5,
+    "Problem Solving": 4,
+    "Logical Thinking": 4,
+    "Math Aptitude": 3,
+    "Communication": 3
+  },
+  "preferredWorkEnvironment": "Office/Tech",
+  "careerGoals": ["High Salary", "Innovation"]
+}
+```
+
+**Response**
+```json
+{
+  "recommendations": [
+    {
+      "careerName": "AI Engineer",
+      "field": "CS & IT",
+      "matchingScore": 87,
+      "subjectPct": 95,
+      "interestPct": 91,
+      "skillPct": 76,
+      "whyThisCareer": "Your academic subjects are an excellent fit. Your interests strongly align with this career. Your skills are a strong match for the role.",
+      "requiredKeySkills": ["Programming", "Math Aptitude", "Problem Solving"],
+      "suggestedEducationPath": "B.Tech in CS with AI specialisation..."
+    }
+  ]
+}
+```
+
+---

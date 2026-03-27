@@ -42,8 +42,6 @@ career_match_studio/
 │   ├── career_recommender.py       Standalone demo script
 │   └── run_kaggle_skill.py         Kaggle dataset test script
 │
-├── data/                           (add your CSV here for Kaggle testing)
-│   └── skill_and_career_recommendation_dataset.csv
 │
 ├── .gitignore
 └── README.md
@@ -118,64 +116,5 @@ score = 0.45 × subject_score + 0.35 × interest_score + 0.20 × skill_score + b
 | interest_score | **Cosine similarity**   | Penalises mismatched interests naturally          |
 | skill_score    | Weighted average        | Skills are self-rated and less reliable           |
 | boost          | Small additive (+0–0.05)| Prevents score collapse; preserves spread         |
-
-### Why cosine similarity?
-A simple weighted average only rewards matching interests. Cosine similarity
-compares the student's **full interest vector** against each career's profile.
-If you have high interest in dims the career doesn't value, your vector magnitude
-grows without increasing the dot product — resulting in a lower similarity score.
-This is how `AI Engineer` properly outscores `Web Developer` for an AI-focused
-student, even though both require "Coding / Software".
-
----
-
-## API Reference
-
-### POST /api/recommend/
-
-**Request body**
-```json
-{
-  "favoriteSubjects": ["Computer Science", "Mathematics"],
-  "interestAreas": {
-    "Coding / Software": 5,
-    "AI & Machine Learning": 4,
-    "Data & Analytics": 3,
-    "Physics & Maths": 3,
-    "Biology": 1,
-    "Chemistry": 1,
-    "Electronics & HW": 2,
-    "Research": 2
-  },
-  "skills": {
-    "Programming": 5,
-    "Problem Solving": 4,
-    "Logical Thinking": 4,
-    "Math Aptitude": 3,
-    "Communication": 3
-  },
-  "preferredWorkEnvironment": "Office/Tech",
-  "careerGoals": ["High Salary", "Innovation"]
-}
-```
-
-**Response**
-```json
-{
-  "recommendations": [
-    {
-      "careerName": "AI Engineer",
-      "field": "CS & IT",
-      "matchingScore": 87,
-      "subjectPct": 95,
-      "interestPct": 91,
-      "skillPct": 76,
-      "whyThisCareer": "Your academic subjects are an excellent fit. Your interests strongly align with this career. Your skills are a strong match for the role.",
-      "requiredKeySkills": ["Programming", "Math Aptitude", "Problem Solving"],
-      "suggestedEducationPath": "B.Tech in CS with AI specialisation..."
-    }
-  ]
-}
-```
 
 ---

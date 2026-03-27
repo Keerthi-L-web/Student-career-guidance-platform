@@ -1,7 +1,18 @@
-import { useState, useEffect, useRef } from "react";
-import { recommendCareers, DIMS, ALL_DIMS } from "./engine";
-import "./App.css";
+import { useState, useRef } from "react";
 
+import "./App.css";
+const DIMS = {
+  CODE: "Coding / Software",
+  AI: "AI & Machine Learning",
+  DATA: "Data & Analytics",
+  PHYS: "Physics & Maths",
+  BIO: "Biology",
+  CHEM: "Chemistry",
+  ELEC: "Electronics & HW",
+  RESEARCH: "Research",
+};
+
+const ALL_DIMS = Object.values(DIMS);
 // ── Constants ──────────────────────────────────────────────────────────────────
 const SUBJECTS   = ["Mathematics", "Physics", "Biology", "Chemistry", "Computer Science"];
 const WORK_ENVS  = ["Office/Tech", "Hospital/Clinical", "Field/On-site", "Research/Lab", "Mixed"];
@@ -117,9 +128,7 @@ export default function App() {
   const [recs,     setRecs]     = useState([]);
   const [loading,  setLoading]  = useState(false);
   const [done,     setDone]     = useState(false);
-  const timerRef   = useRef(null);
   const resultsRef = useRef(null);
-  const firstRun   = useRef(true);
 
   const buildProfile = () => ({
     favoriteSubjects: subjects,
@@ -129,27 +138,38 @@ export default function App() {
     careerGoals: goals,
   });
 
-  // Live update after first manual run (400 ms debounce)
-  useEffect(() => {
-    if (firstRun.current) return;
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      setRecs(recommendCareers(buildProfile(), 5));
-    }, 400);
-    return () => clearTimeout(timerRef.current);
-  }, [subjects, interests, skills, env, goals]); // eslint-disable-line
+  
+  const handleAnalyse = async () => {
+  setLoading(true);
+  setDone(false);
 
-  const handleAnalyse = () => {
-    clearTimeout(timerRef.current);
-    firstRun.current = false;
-    setLoading(true); setDone(false);
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/recommend/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(buildProfile()),
+    });
+
+    const data = await res.json();
+
+    setRecs(data.recommendations);
+    setDone(true);
+
     setTimeout(() => {
-      setRecs(recommendCareers(buildProfile(), 5));
-      setLoading(false); setDone(true);
-      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
-    }, 700);
-  };
+      resultsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 80);
 
+  } catch (err) {
+    console.error("API ERROR:", err);
+  } finally {
+    setLoading(false);
+  }
+};
   const toggle = (arr, setArr, val) =>
     setArr(p => p.includes(val) ? p.filter(x => x !== val) : [...p, val]);
 

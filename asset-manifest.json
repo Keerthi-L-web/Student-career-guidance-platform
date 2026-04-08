@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/Student-career-guidance-platform/static/css/main.f6e84c76.css",
+    "main.js": "/Student-career-guidance-platform/static/js/main.d808c274.js",
+    "static/js/74.0bf3d783.chunk.js": "/Student-career-guidance-platform/static/js/74.0bf3d783.chunk.js",
+    "static/js/977.c2735d35.chunk.js": "/Student-career-guidance-platform/static/js/977.c2735d35.chunk.js",
+    "static/js/732.e823241a.chunk.js": "/Student-career-guidance-platform/static/js/732.e823241a.chunk.js",
+    "index.html": "/Student-career-guidance-platform/index.html",
+    "main.f6e84c76.css.map": "/Student-career-guidance-platform/static/css/main.f6e84c76.css.map",
+    "main.d808c274.js.map": "/Student-career-guidance-platform/static/js/main.d808c274.js.map",
+    "74.0bf3d783.chunk.js.map": "/Student-career-guidance-platform/static/js/74.0bf3d783.chunk.js.map",
+    "977.c2735d35.chunk.js.map": "/Student-career-guidance-platform/static/js/977.c2735d35.chunk.js.map",
+    "732.e823241a.chunk.js.map": "/Student-career-guidance-platform/static/js/732.e823241a.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f6e84c76.css",
+    "static/js/main.d808c274.js"
+  ]
+}

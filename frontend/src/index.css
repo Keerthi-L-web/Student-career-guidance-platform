@@ -1,3 +1,4 @@
+/* ── Global reset & base ─────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;

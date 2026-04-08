@@ -3,6 +3,7 @@ import logging
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from firebase_admin import firestore
 
 from .career_engine import StudentProfile, recommend_careers
 from .serializers import StudentProfileSerializer
@@ -42,24 +43,34 @@ def recommend_view(request):
 
     # Persist to DB for admin history (non-blocking — errors don't break the API)
     try:
-        db_profile = StudentProfileModel.objects.create(
-            favorite_subjects=data["favoriteSubjects"],
-            interest_areas=data["interestAreas"],
-            skills=data["skills"],
-            preferred_work_environment=data["preferredWorkEnvironment"],
-            career_goals=data["careerGoals"],
-        )
-        CareerRecommendationModel.objects.bulk_create([
-            CareerRecommendationModel(
-                student=db_profile,
-                career_name=r.career_name,
-                matching_score=r.score_percent,
-                why_this_career=r.why_suits,
-            )
-            for r in recs
-        ])
-    except Exception:
-        logger.exception("Failed to persist recommendation to database")
+        from career_backend.firebase_config import get_firestore_client
+        db = get_firestore_client()
+        if db:
+            user_email = request.data.get("userEmail", "anonymous")
+            
+            # Create a history document
+            history_doc_ref = db.collection(u'recommendations').document()
+            
+            history_doc_ref.set({
+                u'userEmail': user_email,
+                u'profile': {
+                    u'favoriteSubjects': data["favoriteSubjects"],
+                    u'interestAreas': data["interestAreas"],
+                    u'skills': data["skills"],
+                    u'preferredWorkEnvironment': data["preferredWorkEnvironment"],
+                    u'careerGoals': data["careerGoals"]
+                },
+                u'recommendations': [
+                    {
+                        u'careerName': r.career_name,
+                        u'matchingScore': r.score_percent,
+                        u'whyThisCareer': r.why_suits
+                    } for r in recs
+                ],
+                u'timestamp': firestore.SERVER_TIMESTAMP
+            })
+    except Exception as e:
+        logger.exception(f"Failed to persist recommendation to Firestore: {e}")
 
     response_data = [
         {

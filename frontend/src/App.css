@@ -47,6 +47,32 @@
   font-size: .72rem; letter-spacing: .18em; color: var(--m2);
 }
 .nav-logo span { color: var(--c); }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.nav-link {
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--t);
+  text-decoration: none;
+  transition: color .2s, border-color .2s;
+}
+.nav-link:hover {
+  color: var(--c);
+}
+.nav-link--primary {
+  padding: 6px 16px;
+  border-radius: 6px;
+  background: rgba(34,211,238,.10);
+  border: 1px solid rgba(34,211,238,.4);
+  color: var(--c);
+}
+.nav-link--primary:hover {
+  background: rgba(34,211,238,.18);
+  color: white;
+}
 .live-badge {
   display: flex; align-items: center; gap: 7px;
   font-family: 'DM Mono', monospace; font-size: .66rem;

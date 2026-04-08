@@ -18,12 +18,18 @@ function scoreColor(s) {
 }
 
 function formatDate(timestamp) {
-  if (!timestamp) return "Unknown date";
-  // Firestore Timestamp objects have .toDate(), plain strings don't
-  const date =
-    typeof timestamp.toDate === "function"
-      ? timestamp.toDate()
-      : new Date(timestamp);
+  if (!timestamp) return "Just now";
+  let date;
+  if (typeof timestamp.toDate === "function") {
+    date = timestamp.toDate();
+  } else if (timestamp.seconds) {
+    date = new Date(timestamp.seconds * 1000);
+  } else {
+    date = new Date(timestamp);
+  }
+  
+  if (isNaN(date.getTime())) return "Just now";
+
   return date.toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",

@@ -2,21 +2,24 @@
   "name": "career-match-studio",
   "version": "1.0.0",
   "private": true,
+  "homepage": "https://Keerthi-L-web.github.io/Student-career-guidance-platform",
   "dependencies": {
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^13.5.0",
     "ajv": "^8.18.0",
+    "firebase": "^10.9.0",
+    "html2pdf.js": "^0.10.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "react-scripts": "^5.0.1",
-    "web-vitals": "^2.1.4",
     "react-router-dom": "^6.22.3",
-    "firebase": "^10.9.0",
+    "react-scripts": "^5.0.1",
     "recharts": "^2.12.3",
-    "html2pdf.js": "^0.10.1"
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -40,5 +43,8 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://127.0.0.1:8000"
+  "proxy": "http://127.0.0.1:8000",
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
+  }
 }
